@@ -31,6 +31,14 @@ type WalletOption = {
   installUrl: string;
 };
 
+type Challenge = { nonce: string; domain: string; issuedAt: string };
+
+const toBase64 = (bytes: Uint8Array) => {
+  let binary = "";
+  bytes.forEach((byte) => { binary += String.fromCharCode(byte); });
+  return btoa(binary);
+};
+
 const compact = (address: string) => `${address.slice(0, 5)}…${address.slice(-5)}`;
 
 const getWallets = (): WalletOption[] => {
@@ -64,13 +72,16 @@ export default function Home() {
 
   useEffect(() => {
     setWallets(getWallets());
-    const saved = sessionStorage.getItem("solana-login-address");
-    if (saved) {
-      setAddress(saved);
-      setAuthenticated(true);
-      setStatus("已通过签名验证");
-    }
-
+    fetch("/api/auth/session")
+      .then(async (response) => response.ok ? response.json() as Promise<{ wallet: string }> : null)
+      .then((session) => {
+        if (session?.wallet) {
+          setAddress(session.wallet);
+          setAuthenticated(true);
+          setStatus("已通过签名验证");
+        }
+      })
+      .catch(() => undefined);
   }, []);
 
   const wallet = wallets.find(({ id }) => id === selectedWallet) ?? null;
@@ -81,7 +92,7 @@ export default function Home() {
       const next = key?.toString() ?? "";
       setAddress(next);
       setAuthenticated(false);
-      sessionStorage.removeItem("solana-login-address");
+      void fetch("/api/auth/session", { method: "DELETE" });
       setStatus(next ? "账户已切换，请重新签名" : "钱包已断开");
     };
     provider?.on?.("accountChanged", accountChanged);
@@ -102,17 +113,27 @@ export default function Home() {
       const walletAddress = connection.publicKey.toString();
       setAddress(walletAddress);
       setStatus("等待钱包签名…");
+      const challengeResponse = await fetch("/api/auth/challenge", { cache: "no-store" });
+      if (!challengeResponse.ok) throw new Error("无法创建登录请求");
+      const challenge = await challengeResponse.json() as Challenge;
       const statement = [
         "登录 Solana Portal",
         "",
         `Wallet: ${walletAddress}`,
-        `Domain: ${window.location.host}`,
-        `Issued At: ${new Date().toISOString()}`,
+        `Domain: ${challenge.domain}`,
+        `Nonce: ${challenge.nonce}`,
+        `Issued At: ${challenge.issuedAt}`,
         "",
         "此签名不会发起交易或产生费用。",
       ].join("\n");
-      await provider.signMessage(new TextEncoder().encode(statement), "utf8");
-      sessionStorage.setItem("solana-login-address", walletAddress);
+      const { signature } = await provider.signMessage(new TextEncoder().encode(statement), "utf8");
+      const verification = await fetch("/api/auth/verify", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ wallet: walletAddress, signature: toBase64(signature) }),
+      });
+      const result = await verification.json() as { error?: string };
+      if (!verification.ok) throw new Error(result.error ?? "钱包签名验证失败");
       setAuthenticated(true);
       setStatus("已通过签名验证");
     } catch (error) {
@@ -124,8 +145,10 @@ export default function Home() {
   }
 
   async function logout() {
-    await provider?.disconnect().catch(() => undefined);
-    sessionStorage.removeItem("solana-login-address");
+    await Promise.all([
+      provider?.disconnect().catch(() => undefined),
+      fetch("/api/auth/session", { method: "DELETE" }).catch(() => undefined),
+    ]);
     setAddress("");
     setAuthenticated(false);
     setStatus("已安全退出");

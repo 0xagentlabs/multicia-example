@@ -209,7 +209,7 @@ export default function Home() {
                     <i className="verified">已验证</i>
                   </div>
                 )) : <p className="emptyAccess">该钱包暂无链上租户权限</p>}
-                <a className="programLink" href={`https://explorer.solana.com/address/${access?.programId ?? "Fg6PaFpoGXkYsidMpWxTWqoz8R9bJXaP7pJZqY4YQhQh"}?cluster=devnet`} target="_blank" rel="noreferrer">查看控制器程序</a>
+                <a className="programLink" href={`https://explorer.solana.com/address/${access?.programId ?? "HzZSNAsacNF61tfNDa8sr9PS8fVzfxfunh7A6yVRmaFp"}?cluster=devnet`} target="_blank" rel="noreferrer">查看控制器程序</a>
               </section>
               <button className="primary" onClick={logout}>断开连接</button>
             </>

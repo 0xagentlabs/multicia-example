@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Session, SESSION_COOKIE, unseal } from "@/lib/auth";
 
-const PROGRAM_ID = process.env.NEXT_PUBLIC_SAAS_PROGRAM_ID ?? "Fg6PaFpoGXkYsidMpWxTWqoz8R9bJXaP7pJZqY4YQhQh";
+const PROGRAM_ID = process.env.NEXT_PUBLIC_SAAS_PROGRAM_ID ?? "HzZSNAsacNF61tfNDa8sr9PS8fVzfxfunh7A6yVRmaFp";
 const RPC_URL = process.env.SOLANA_RPC_URL ?? "https://api.devnet.solana.com";
 const roles = ["Viewer", "Editor", "Admin", "Owner"] as const;
 

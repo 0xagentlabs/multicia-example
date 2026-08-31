@@ -11,7 +11,7 @@ cargo test
 NO_DNA=1 cargo build-sbf --manifest-path programs/saas-controller/Cargo.toml
 ```
 
-默认程序地址为 `Fg6PaFpoGXkYsidMpWxTWqoz8R9bJXaP7pJZqY4YQhQh`，默认读取 devnet。可配置 `NEXT_PUBLIC_SAAS_PROGRAM_ID` 和 `SOLANA_RPC_URL`。部署是签名交易，必须先检查并模拟，再由部署权限人明确确认。
+devnet 程序地址为 `HzZSNAsacNF61tfNDa8sr9PS8fVzfxfunh7A6yVRmaFp`。可配置 `NEXT_PUBLIC_SAAS_PROGRAM_ID` 和 `SOLANA_RPC_URL`。
 
 ## 本地运行
 

@@ -44,7 +44,11 @@ const compact = (address: string) => `${address.slice(0, 5)}…${address.slice(-
 const getWallets = (): WalletOption[] => {
   const injected = window.solana;
   const backpack = window.backpack;
-  const backpackProvider = backpack && "solana" in backpack ? backpack.solana : backpack;
+  const backpackProvider = backpack && "solana" in backpack
+    ? backpack.solana ?? null
+    : backpack && "connect" in backpack
+      ? backpack
+      : null;
 
   return [
     {

@@ -9,7 +9,7 @@ npm install
 npm run dev
 ```
 
-打开 `http://localhost:3000`，并确保浏览器已安装 Phantom 或其他注入 `window.solana` 的兼容钱包。
+打开 `http://localhost:3000`，并确保浏览器已安装 Phantom 或 Backpack。登录卡片会分别检测钱包扩展，让用户明确选择使用哪个钱包。
 
 ## 登录流程
 

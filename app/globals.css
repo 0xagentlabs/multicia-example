@@ -22,6 +22,10 @@ h1 em { color:transparent; font-style:italic; background:linear-gradient(90deg,#
 .walletAvatar { color:white; font-size:20px; font-weight:800; background:linear-gradient(135deg,#5f43d9,#38c995); }
 h2 { margin:0 0 9px; font-size:22px; }
 .card p { color:#85838d; font-size:13px; margin:0 auto 24px; }
+.walletChoices { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:0 0 14px; }
+.walletChoice { border:1px solid #34323d; border-radius:11px; padding:11px 12px; background:#101014; color:#aaa7b1; cursor:pointer; text-align:left; transition:.2s ease; }
+.walletChoice span,.walletChoice small { display:block; }.walletChoice span { color:#e4e1e9; font-weight:700; font-size:13px; }.walletChoice small { margin-top:4px; color:#74717c; font-size:10px; }
+.walletChoice:hover,.walletChoice.active { border-color:#8b78eb; background:#171420; }.walletChoice.active { box-shadow:0 0 0 1px rgba(139,120,235,.25); }
 .primary { width:100%; border:0; border-radius:12px; padding:15px 17px; background:linear-gradient(90deg,#8873ef,#a98cf5); color:white; font-weight:750; font-size:14px; cursor:pointer; display:flex; justify-content:center; gap:14px; box-shadow:0 9px 26px rgba(126,102,226,.25); transition:.2s ease; }
 .primary:hover { transform:translateY(-1px); filter:brightness(1.08); }.primary:disabled { opacity:.65; cursor:wait; }
 .status { margin-top:20px; color:#77757f; font-size:11px; }

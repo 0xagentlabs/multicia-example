@@ -5,6 +5,8 @@ import { useEffect, useMemo, useState } from "react";
 type PublicKey = { toString(): string };
 type SignatureResult = { signature: Uint8Array };
 type SolanaProvider = {
+  isPhantom?: boolean;
+  isBackpack?: boolean;
   isConnected?: boolean;
   publicKey?: PublicKey | null;
   connect(): Promise<{ publicKey: PublicKey }>;
@@ -18,21 +20,50 @@ declare global {
   interface Window {
     solana?: SolanaProvider;
     phantom?: { solana?: SolanaProvider };
+    backpack?: SolanaProvider | { solana?: SolanaProvider };
   }
 }
 
+type WalletOption = {
+  id: "phantom" | "backpack";
+  name: string;
+  provider: SolanaProvider | null;
+  installUrl: string;
+};
+
 const compact = (address: string) => `${address.slice(0, 5)}…${address.slice(-5)}`;
 
+const getWallets = (): WalletOption[] => {
+  const injected = window.solana;
+  const backpack = window.backpack;
+  const backpackProvider = backpack && "solana" in backpack ? backpack.solana : backpack;
+
+  return [
+    {
+      id: "phantom",
+      name: "Phantom",
+      provider: window.phantom?.solana ?? (injected?.isPhantom ? injected : null),
+      installUrl: "https://phantom.app/",
+    },
+    {
+      id: "backpack",
+      name: "Backpack",
+      provider: backpackProvider ?? (injected?.isBackpack ? injected : null),
+      installUrl: "https://backpack.app/downloads/",
+    },
+  ];
+};
+
 export default function Home() {
-  const [provider, setProvider] = useState<SolanaProvider | null>(null);
+  const [wallets, setWallets] = useState<WalletOption[]>([]);
+  const [selectedWallet, setSelectedWallet] = useState<WalletOption["id"]>("phantom");
   const [address, setAddress] = useState("");
   const [authenticated, setAuthenticated] = useState(false);
   const [status, setStatus] = useState("连接钱包以继续");
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    const wallet = window.phantom?.solana ?? window.solana ?? null;
-    setProvider(wallet);
+    setWallets(getWallets());
     const saved = sessionStorage.getItem("solana-login-address");
     if (saved) {
       setAddress(saved);
@@ -40,6 +71,12 @@ export default function Home() {
       setStatus("已通过签名验证");
     }
 
+  }, []);
+
+  const wallet = wallets.find(({ id }) => id === selectedWallet) ?? null;
+  const provider = wallet?.provider ?? null;
+
+  useEffect(() => {
     const accountChanged = (key: PublicKey | null) => {
       const next = key?.toString() ?? "";
       setAddress(next);
@@ -47,16 +84,16 @@ export default function Home() {
       sessionStorage.removeItem("solana-login-address");
       setStatus(next ? "账户已切换，请重新签名" : "钱包已断开");
     };
-    wallet?.on?.("accountChanged", accountChanged);
-    return () => wallet?.removeListener?.("accountChanged", accountChanged);
-  }, []);
+    provider?.on?.("accountChanged", accountChanged);
+    return () => provider?.removeListener?.("accountChanged", accountChanged);
+  }, [provider]);
 
   const avatar = useMemo(() => address.slice(0, 2).toUpperCase() || "◎", [address]);
 
   async function login() {
     if (!provider) {
-      window.open("https://phantom.app/", "_blank", "noopener,noreferrer");
-      setStatus("请先安装兼容的 Solana 钱包");
+      window.open(wallet?.installUrl ?? "https://solana.com/wallets", "_blank", "noopener,noreferrer");
+      setStatus(`请先安装 ${wallet?.name ?? "Solana 钱包"}`);
       return;
     }
     setBusy(true);
@@ -124,7 +161,23 @@ export default function Home() {
               <div className="walletIcon">⌁</div>
               <h2>连接你的钱包</h2>
               <p>我们将请求一条消息签名来验证所有权。</p>
-              <button className="primary" onClick={login} disabled={busy}>{busy ? "正在连接…" : provider ? "连接并签名" : "安装 Phantom 钱包"}<span>→</span></button>
+              <div className="walletChoices" aria-label="选择钱包">
+                {wallets.map((option) => (
+                  <button
+                    className={option.id === selectedWallet ? "walletChoice active" : "walletChoice"}
+                    key={option.id}
+                    onClick={() => {
+                      setSelectedWallet(option.id);
+                      setStatus(option.provider ? `已选择 ${option.name}` : `${option.name} 尚未安装`);
+                    }}
+                    type="button"
+                  >
+                    <span>{option.id === "phantom" ? "👻" : "🎒"} {option.name}</span>
+                    <small>{option.provider ? "已检测" : "未安装"}</small>
+                  </button>
+                ))}
+              </div>
+              <button className="primary" onClick={login} disabled={busy}>{busy ? "正在连接…" : provider ? `使用 ${wallet?.name} 连接并签名` : `安装 ${wallet?.name ?? "钱包"}`}<span>→</span></button>
               <div className="status" aria-live="polite"><i /> {status}</div>
             </>
           )}

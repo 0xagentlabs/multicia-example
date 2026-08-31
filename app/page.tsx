@@ -29,6 +29,7 @@ type WalletOption = {
 };
 
 type Challenge = { nonce: string; domain: string; issuedAt: string };
+type Access = { cluster: string; programId: string; memberships: { account: string; tenant: string; role: string; expiresAt: number | null }[] };
 
 const toBase64 = (bytes: Uint8Array) => {
   let binary = "";
@@ -75,6 +76,7 @@ export default function Home() {
   const [authenticated, setAuthenticated] = useState(false);
   const [status, setStatus] = useState("连接钱包以继续");
   const [busy, setBusy] = useState(false);
+  const [access, setAccess] = useState<Access | null>(null);
 
   useEffect(() => {
     const registry = getStandardWallets();
@@ -89,6 +91,7 @@ export default function Home() {
           setAddress(session.wallet);
           setAuthenticated(true);
           setStatus("已通过签名验证");
+          void fetch("/api/controller/access").then((r) => r.ok ? r.json() : null).then(setAccess);
         }
       })
       .catch(() => undefined);
@@ -154,6 +157,8 @@ export default function Home() {
       if (!verification.ok) throw new Error(result.error ?? "钱包签名验证失败");
       setAuthenticated(true);
       setStatus("已通过签名验证");
+      const accessResponse = await fetch("/api/controller/access", { cache: "no-store" });
+      if (accessResponse.ok) setAccess(await accessResponse.json() as Access);
     } catch (error) {
       const message = error instanceof Error ? error.message : "操作已取消";
       setStatus(message.includes("User rejected") ? "你取消了钱包操作" : message);
@@ -169,6 +174,7 @@ export default function Home() {
     ]);
     setAddress("");
     setAuthenticated(false);
+    setAccess(null);
     setStatus("已安全退出");
   }
 
@@ -195,6 +201,16 @@ export default function Home() {
               <div className="success">✓ 身份已验证</div>
               <h2>欢迎回来</h2>
               <div className="address">{compact(address)} <button onClick={() => navigator.clipboard.writeText(address)} aria-label="复制钱包地址">⧉</button></div>
+              <section className="accessPanel" aria-labelledby="access-title">
+                <div className="accessHeading"><span id="access-title">链上权限</span><small>DEVNET</small></div>
+                {access?.memberships.length ? access.memberships.map((member) => (
+                  <div className="membership" key={member.account}>
+                    <span><strong>{member.role}</strong><small>租户 {compact(member.tenant)}</small></span>
+                    <i className="verified">已验证</i>
+                  </div>
+                )) : <p className="emptyAccess">该钱包暂无链上租户权限</p>}
+                <a className="programLink" href={`https://explorer.solana.com/address/${access?.programId ?? "Fg6PaFpoGXkYsidMpWxTWqoz8R9bJXaP7pJZqY4YQhQh"}?cluster=devnet`} target="_blank" rel="noreferrer">查看控制器程序</a>
+              </section>
               <button className="primary" onClick={logout}>断开连接</button>
             </>
           ) : (

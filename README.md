@@ -1,6 +1,17 @@
-# Solana Login DApp
+# Solana SaaS Control Plane
 
-一个基于 Next.js App Router 的 Solana 钱包签名登录界面，可直接部署至 Vercel。
+Pinocchio 0.11 链上 SaaS 控制器与 Next.js 钱包控制台。身份来源是 Wallet Standard 钱包，成员角色、资源最低角色与数据哈希均存储在 Solana PDA，不使用中心化数据库。
+
+## 链上控制器
+
+程序位于 `programs/saas-controller`，提供 `initialize_tenant`、`upsert_member`、`upsert_resource`、`set_paused` 和 `assert_access`。账户采用 1 字节类型标识 + 1 字节版本号，所有写入均验证 signer、owner、PDA、账户长度和租户权限。
+
+```bash
+cargo test
+NO_DNA=1 cargo build-sbf --manifest-path programs/saas-controller/Cargo.toml
+```
+
+默认程序地址为 `Fg6PaFpoGXkYsidMpWxTWqoz8R9bJXaP7pJZqY4YQhQh`，默认读取 devnet。可配置 `NEXT_PUBLIC_SAAS_PROGRAM_ID` 和 `SOLANA_RPC_URL`。部署是签名交易，必须先检查并模拟，再由部署权限人明确确认。
 
 ## 本地运行
 

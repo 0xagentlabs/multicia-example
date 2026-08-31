@@ -1,0 +1,17 @@
+[package]
+name = "saas-controller"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "saas_controller"
+
+[features]
+default = []
+std = []
+
+[dependencies]
+pinocchio = "0.11.2"
+pinocchio-system = "0.6.1"
+solana-address = { version = "2.7.0", features = ["curve25519"] }

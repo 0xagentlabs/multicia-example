@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Session, SESSION_COOKIE, unseal } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: NextRequest) {
   const session = unseal<Session>(request.cookies.get(SESSION_COOKIE)?.value);
   if (!session || session.expiresAt < Date.now()) return NextResponse.json({ wallet: null }, { status: 401 });

@@ -9,7 +9,7 @@ npm install
 npm run dev
 ```
 
-打开 `http://localhost:3000`，并确保浏览器已安装 Phantom 或 Backpack。登录卡片会分别检测钱包扩展，让用户明确选择使用哪个钱包。
+打开 `http://localhost:3000`。登录卡片通过 Solana Wallet Standard 动态发现浏览器钱包，内置 Phantom、Solflare、Backpack、Coinbase Wallet 和 Glow 入口，也会自动展示其他支持 Wallet Standard 消息签名的钱包。
 
 ## 登录流程
 

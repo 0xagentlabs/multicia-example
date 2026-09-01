@@ -1,0 +1,18 @@
+{
+  "rpcUrl": "https://api.devnet.solana.com",
+  "authority": "REPLACE_WITH_VAULT_OWNER",
+  "agent": "REPLACE_WITH_AGENT_PUBLIC_KEY",
+  "orders": [
+    {
+      "id": "daily-payout",
+      "enabled": true,
+      "direction": "withdraw",
+      "mint": "REPLACE_WITH_MINT",
+      "destination": "REPLACE_WITH_DESTINATION_TOKEN_ACCOUNT",
+      "amount": "1000000",
+      "maxAmount": "1000000",
+      "decimals": 6,
+      "tokenProgram": "spl-token"
+    }
+  ]
+}

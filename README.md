@@ -32,6 +32,27 @@ npm run dev
 
 生产部署必须配置至少 32 字节的随机环境变量 `SOLANA_AUTH_SECRET`；未配置时仅使用适合本地开发的默认值。
 
+## Agent SPL Token Vault
+
+`programs/token-vault` 是 Pinocchio 实现的通用代币金库。每个 owner 对应一个 `['vault', owner]` PDA；该 PDA 同时作为 vault ATA 的 authority。支持原版 SPL Token 与 Token-2022 的 `TransferChecked`，并提供：
+
+- `initialize`：创建 vault 并指定 agent；
+- `deposit` / `withdraw`：owner 或 agent 操作任意 mint；
+- `set_agent`：owner 轮换自动化 agent；
+- `set_paused`：owner 一键停止自动化。
+
+TypeScript 构造器位于 `sdk/vault.ts`。调用方应先用 `getOrCreateAssociatedTokenAccount(..., vaultPda, true, tokenProgram)` 创建对应 mint 的 vault ATA。`automation/run.ts` 执行带单笔上限的 JSON 订单策略，签名器必须由调用方注入（推荐硬件或 KMS signer，不在策略/Notebook 中保存私钥）。Jupyter 示例位于 `notebooks/vault-orders.ipynb`。
+
+```bash
+cargo test
+npm run typecheck
+cp automation/policy.example.json automation/policy.json
+# 编辑公钥和订单；适用于 cron、GitHub Actions 或 Multica 定时任务
+npm run vault:run -- automation/policy.json
+```
+
+生产运行时应在每次触发中调用 `executePolicy(policy, signer, false)`。建议使用最小余额 agent、严格 `maxAmount`、独立 RPC、交易模拟与告警；暂停或轮换 agent 只能由 owner 签名。
+
 ## 部署到 Vercel
 
 导入仓库后选择 Next.js 框架预设，并配置 `SOLANA_AUTH_SECRET`。

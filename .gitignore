@@ -8,3 +8,5 @@ AGENTS.md
 target/
 .agent_context/
 .multica/
+automation/policy.json
+tsconfig.tsbuildinfo

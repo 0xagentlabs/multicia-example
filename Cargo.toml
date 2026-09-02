@@ -1,5 +1,5 @@
 [workspace]
-members = ["programs/saas-controller", "programs/token-vault"]
+members = ["programs/paid-counter", "programs/saas-controller", "programs/token-vault"]
 resolver = "2"
 
 [profile.release]

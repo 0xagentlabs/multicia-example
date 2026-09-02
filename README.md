@@ -6,7 +6,7 @@
 
 ```bash
 NEXT_PUBLIC_SOLANA_RPC_URL=https://api.devnet.solana.com
-NEXT_PUBLIC_COUNTER_PROGRAM_ID=<deployed-program-id>
+NEXT_PUBLIC_COUNTER_PROGRAM_ID=cnnYUKJ22WztyAumbtrdmrQTW49jPtpWQA6dFnTTa13
 ```
 
 每笔交易在请求 Wallet Standard 钱包签名前都会先模拟。

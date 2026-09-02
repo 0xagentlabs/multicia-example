@@ -1,5 +1,23 @@
 # Solana SaaS Control Plane
 
+## Paid Counter
+
+当前首页是一个 devnet 链上计数器。每个钱包拥有独立 PDA；初始化、加一和减一均向全局金库 PDA 转账 `1_000_000` lamports（`0.001 SOL`）。`set_owner` 只允许在配置 PDA 尚未创建时执行，第一个成功调用者成为不可变 owner；只有该 owner 能将金库中超过租金豁免储备的 SOL 提走。
+
+```bash
+NEXT_PUBLIC_SOLANA_RPC_URL=https://api.devnet.solana.com
+NEXT_PUBLIC_COUNTER_PROGRAM_ID=cnnYUKJ22WztyAumbtrdmrQTW49jPtpWQA6dFnTTa13
+```
+
+每笔交易在请求 Wallet Standard 钱包签名前都会先模拟。
+
+```bash
+NO_DNA=1 cargo build-sbf --manifest-path programs/paid-counter/Cargo.toml
+npm run test
+npm run typecheck
+npm run build
+```
+
 Pinocchio 0.11 链上 SaaS 控制器与 Next.js 钱包控制台。身份来源是 Wallet Standard 钱包，成员角色、资源最低角色与数据哈希均存储在 Solana PDA，不使用中心化数据库。
 
 ## 链上控制器

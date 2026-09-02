@@ -1,5 +1,5 @@
 {
-  "name": "solana-login-dapp",
+  "name": "solana-paid-counter",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
+    "test": "tsx --test tests/**/*.test.ts",
     "vault:run": "tsx automation/run.ts"
   },
   "dependencies": {

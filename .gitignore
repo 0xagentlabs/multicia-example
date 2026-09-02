@@ -10,3 +10,4 @@ target/
 .multica/
 automation/policy.json
 tsconfig.tsbuildinfo
+.env*
